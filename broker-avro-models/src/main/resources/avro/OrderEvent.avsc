@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "namespace": "az.kon.academy.broker.example.model.avro",
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "string"
+    },
+    {
+      "name": "customerId",
+      "type": "string"
+    },
+    {
+      "name": "amount",
+      "type": "double"
+    },
+    {
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": "long"
+    }
+  ]
+}

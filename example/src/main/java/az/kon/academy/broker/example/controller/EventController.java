@@ -1,13 +1,17 @@
 package az.kon.academy.broker.example.controller;
 
-import az.kon.academy.broker.example.model.NotificationEvent;
 import az.kon.academy.broker.example.model.OrderEvent;
 import az.kon.academy.broker.example.model.UserEvent;
+import az.kon.academy.broker.example.model.avro.NotificationEvent;
 import az.kon.academy.broker.example.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/events")
@@ -18,8 +22,15 @@ public class EventController {
     private final ApplicationContext applicationContext;
 
     @PostMapping("/user")
-    public ResponseEntity<String> sendUserEvent(@RequestBody UserEvent userEvent) {
-        eventService.sendUserEvent(userEvent);
+    public ResponseEntity<String> sendUserEvent() {
+        var event = UserEvent.builder()
+                .setUserId(UUID.randomUUID().toString())
+                .setNotificationId(UUID.randomUUID().toString())
+                .setType("login")
+                .setMessage("message")
+                .setTimestamp(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                .build();
+        eventService.sendUserEvent(event);
         return ResponseEntity.ok("User event sent successfully");
     }
 
@@ -30,8 +41,15 @@ public class EventController {
     }
 
     @PostMapping("/notification")
-    public ResponseEntity<String> sendNotificationEvent(@RequestBody NotificationEvent notificationEvent) {
-        eventService.sendNotificationEvent(notificationEvent);
+    public ResponseEntity<String> sendNotificationEvent() {
+        var event = NotificationEvent.newBuilder()
+                .setUserId(UUID.randomUUID().toString())
+                .setNotificationId(UUID.randomUUID().toString())
+                .setType("sms")
+                .setMessage("message")
+                .setTimestamp(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                .build();
+        eventService.sendNotificationEvent(event);
         return ResponseEntity.ok("Notification event sent successfully");
     }
 

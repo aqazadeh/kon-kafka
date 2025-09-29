@@ -1,0 +1,24 @@
+{
+  "type": "record",
+  "name": "UserEvent",
+  "namespace": "az.kon.academy.broker.example.model.avro",
+  "fields": [
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "action",
+      "type": "string"
+    },
+    {
+      "name": "productId",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "timestamp",
+      "type": "long"
+    }
+  ]
+}

@@ -16,14 +16,24 @@ kafka:
         num-of-partitions: 11
         replication-factor: 10
         producer:
-          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          value-serializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaSerializer
           acks: all
         consumer:
-          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          value-deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
+          enable-auto-commit: false
           additional-props:
-            spring.json.trusted.packages: "*"
-            spring.json.value.default.type: az.kon.academy.broker.example.model.UserEvent
-
+            specific.json.value.type: true
+            json.value.type: az.kon.academy.broker.example.model.UserEvent
+      notification-events:
+        num-of-partitions: 6
+        replication-factor: 1
+        producer:
+          value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+          acks: all
+        consumer:
+          value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+          additional-props:
+            specific.avro.reader: true
 server:
   port: 5050
 

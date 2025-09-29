@@ -1,33 +1,31 @@
 package az.kon.academy.broker.example.consumer;
 
 import az.kon.academy.broker.consumer.KafkaConsumer;
-import az.kon.academy.broker.example.model.NotificationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import az.kon.academy.broker.example.model.avro.NotificationEvent;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-//@Component
-@RequiredArgsConstructor
+@Component
 public class NotificationEventConsumer implements KafkaConsumer<String, NotificationEvent> {
 
     @Override
-//    @KafkaListener(
-//            topics = "user-events",
-//            groupId = "user-events-group",
-//            containerFactory = "userEventsContainerFactory"
-//    )
+    @KafkaListener(
+            topics = "notification-events",
+            containerFactory = "notificationEventsConsumerFactory"
+    )
     public void receive(ConsumerRecord<String, NotificationEvent> record) {
         try {
             log.info("Received notification event with key: {} from partition: {} with offset: {}",
                     record.key(), record.partition(), record.offset());
-
+            System.out.println(record.value().getClass());
             NotificationEvent notificationEvent = record.value();
 
             log.info("Processing notification event: id={}, userId={}, type={}, message={}",
-                    notificationEvent.getNotificationId(), notificationEvent.getUserId(),
+                    notificationEvent.getNotificationId(), notificationEvent.getNotificationId(),
                     notificationEvent.getType(), notificationEvent.getMessage());
 
             processNotificationEvent(notificationEvent);
@@ -38,7 +36,7 @@ public class NotificationEventConsumer implements KafkaConsumer<String, Notifica
     }
 
     private void processNotificationEvent(NotificationEvent notificationEvent) {
-        switch (notificationEvent.getType()) {
+        switch (String.valueOf(notificationEvent.getType())) {
             case "email":
                 log.info("Sending email notification to user {}: {}",
                         notificationEvent.getUserId(), notificationEvent.getMessage());

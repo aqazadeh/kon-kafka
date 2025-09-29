@@ -1,6 +1,6 @@
 package az.kon.academy.broker.example.producer;
 
-import az.kon.academy.broker.example.model.NotificationEvent;
+import az.kon.academy.broker.example.model.avro.NotificationEvent;
 import az.kon.academy.broker.producer.KafkaProducer;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ public class NotificationEventProducer {
     }
 
     public void send(NotificationEvent notificationEvent) {
-        kafkaProducer.send("notification-events", notificationEvent.getNotificationId(), notificationEvent,
+        kafkaProducer.send("notification-events", notificationEvent.getNotificationId().toString(), notificationEvent,
                 (result, ex) -> {
                     if (ex == null) {
                         System.out.println("Notification event sent successfully: " + result.getRecordMetadata());
