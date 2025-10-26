@@ -5,7 +5,8 @@
   "fields": [
     {
       "name": "notificationId",
-      "type": "string"
+      "type": ["null", "string"],
+      "default": null
     },
     {
       "name": "userId",

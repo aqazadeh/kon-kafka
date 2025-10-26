@@ -21,4 +21,8 @@ public class KafkaConsumerConfigData {
     private Integer maxPollRecords = 500;
     private Integer maxPartitionFetchBytesDefault = 1048576;
     private Integer maxPartitionFetchBytesBoostFactor = 1;
+
+    public Integer getMaxPartitionFetchBytesConfig(){
+        return this.maxPartitionFetchBytesBoostFactor * this.maxPartitionFetchBytesDefault;
+    }
 }

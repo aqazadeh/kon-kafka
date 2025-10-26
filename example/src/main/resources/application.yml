@@ -22,8 +22,11 @@ kafka:
           value-deserializer: io.confluent.kafka.serializers.json.KafkaJsonSchemaDeserializer
           enable-auto-commit: false
           additional-props:
-            specific.json.value.type: true
-            json.value.type: az.kon.academy.broker.example.model.UserEvent
+#            specific.json.value.type: true
+#            json.value.type: az.kon.academy.broker.example.model.UserEvent
+            auto.register.schemas: true
+            use.latest.version: false
+            normalize.schemas: true
       notification-events:
         num-of-partitions: 6
         replication-factor: 1

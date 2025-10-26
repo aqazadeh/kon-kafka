@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>az.kon.academy.cordinatoor.serializers</groupId>
+        <artifactId>broker-serializers</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>az.kon.academy.cordinatoor.serializers.avro</groupId>
+    <artifactId>parent-avro-serializer</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <protocol>schema</protocol>
+        <create-optional-getters implementation="boolean">true</create-optional-getters>
+        <enable-decimal-logical-type implementation="boolean">false</enable-decimal-logical-type>
+        <field-visibility implementation="java.lang.String">PRIVATE</field-visibility>
+        <optional-getters-for-nullable-fields-only implementation="boolean">true</optional-getters-for-nullable-fields-only>
+        <output-directory implementation="java.io.File">${project.build.directory}/generated-sources/avro</output-directory>
+        <source-directory implementation="java.io.File">${basedir}/src/main/avro</source-directory>
+        <template-directory implementation="java.lang.String"/>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>1.11.4</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>${protocol}</goal>
+                        </goals>
+                        <configuration>
+                            <createOptionalGetters>${create-optional-getters}</createOptionalGetters>
+                            <enableDecimalLogicalType>${enable-decimal-logical-type}</enableDecimalLogicalType>
+                            <fieldVisibility>${field-visibility}</fieldVisibility>
+                            <optionalGettersForNullableFieldsOnly>${optional-getters-for-nullable-fields-only}</optionalGettersForNullableFieldsOnly>
+                            <outputDirectory>${output-directory}</outputDirectory>
+                            <sourceDirectory>${source-directory}</sourceDirectory>
+                            <templateDirectory>${template-directory}</templateDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

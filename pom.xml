@@ -7,20 +7,23 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.6</version>
-        <relativePath/>
     </parent>
 
-    <groupId>az.kon.academy.broker</groupId>
+    <groupId>az.kon.academy.cordinatoor</groupId>
     <artifactId>kon-coordinator</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <kafka-serializer.version>8.1.0</kafka-serializer.version>
+    </properties>
 
     <packaging>pom</packaging>
     <modules>
         <module>broker-config-data</module>
         <module>broker-producer</module>
         <module>broker-consumer</module>
+        <module>broker-serializers</module>
         <module>example</module>
-        <module>broker-avro-models</module>
     </modules>
 
     <repositories>
@@ -33,34 +36,26 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>az.kon.academy.broker</groupId>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-parent</artifactId>
+                <version>${kafka-serializer.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>az.kon.academy.cordinatoor</groupId>
                 <artifactId>broker-config-data</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>az.kon.academy.broker</groupId>
+                <groupId>az.kon.academy.cordinatoor</groupId>
                 <artifactId>broker-producer</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>az.kon.academy.broker</groupId>
+                <groupId>az.kon.academy.cordinatoor</groupId>
                 <artifactId>broker-consumer</artifactId>
                 <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro</artifactId>
-                <version>1.11.1</version>
-            </dependency>
-            <dependency>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-avro-serializer</artifactId>
-                <version>7.3.3</version>
-            </dependency>
-            <dependency>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-json-schema-serializer</artifactId>
-                <version>7.3.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

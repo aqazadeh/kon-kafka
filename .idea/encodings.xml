@@ -5,6 +5,14 @@
     <file url="file://$PROJECT_DIR$/broker-config-data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/broker-consumer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/broker-producer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-protobuf-models/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/parent-avro-serializer/src/main/avro" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/parent-avro-serializer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/parent-avro-serializer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/parent-protobuf-serializer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/parent-protobuf-serializer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/broker-serializers/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/example/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />

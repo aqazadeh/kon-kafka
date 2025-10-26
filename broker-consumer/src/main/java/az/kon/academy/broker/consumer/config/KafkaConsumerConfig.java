@@ -6,18 +6,13 @@ import az.kon.academy.broker.config.data.topic.KafkaConsumerTopicConfig;
 import az.kon.academy.broker.config.data.topic.KafkaTopicsConfigData;
 import az.kon.academy.broker.consumer.exception.KafkaConsumerException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
@@ -44,24 +39,29 @@ public class KafkaConsumerConfig<K extends Serializable, V extends Serializable>
                 Objects.requireNonNullElse(topicConfig.getGroupId(), this.kafkaDefaultConsumerTopicConfig.getGroupId()));
 
         final var props = new HashMap<String, Object>();
+        var keyDeserializerClassConfig = Objects.requireNonNullElse(topicConfig.getKeyDeserializer(), this.kafkaDefaultConsumerTopicConfig.getKeyDeserializer());
+        var valueDeserializerConfigClass = Objects.requireNonNullElse(topicConfig.getValueDeserializer(), this.kafkaDefaultConsumerTopicConfig.getValueDeserializer());
+        var isAutoCommitEnabled = Objects.requireNonNullElse(topicConfig.getEnableAutoCommit(), this.kafkaDefaultConsumerTopicConfig.getEnableAutoCommit());
+        var groupId = Objects.requireNonNullElse(topicConfig.getGroupId(), this.kafkaDefaultConsumerTopicConfig.getGroupId());
+
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaConfigData.getBootstrapServers());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, this.kafkaConsumerConfigData.getAutoOffsetReset());
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, this.kafkaConsumerConfigData.getSessionTimeoutMs());
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, this.kafkaConsumerConfigData.getHeartbeatIntervalMs());
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, this.kafkaConsumerConfigData.getMaxPollIntervalMs());
         props.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, this.kafkaConsumerConfigData.getAllowAutoCreateTopics());
-        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, this.kafkaConsumerConfigData.getMaxPartitionFetchBytesDefault() * this.kafkaConsumerConfigData.getMaxPartitionFetchBytesBoostFactor());
+        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, this.kafkaConsumerConfigData.getMaxPartitionFetchBytesConfig());
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, this.kafkaConsumerConfigData.getMaxPollRecords());
 
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Objects.requireNonNullElse(topicConfig.getKeyDeserializer(), this.kafkaDefaultConsumerTopicConfig.getKeyDeserializer()));
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Objects.requireNonNullElse(topicConfig.getValueDeserializer(), this.kafkaDefaultConsumerTopicConfig.getValueDeserializer()));
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Objects.requireNonNullElse(topicConfig.getEnableAutoCommit(), this.kafkaDefaultConsumerTopicConfig.getEnableAutoCommit()));
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, Objects.requireNonNullElse(topicConfig.getGroupId(), this.kafkaDefaultConsumerTopicConfig.getGroupId()));
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializerClassConfig);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializerConfigClass);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, isAutoCommitEnabled);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 
         Map<String, String> defaultAdditionalProps = Objects.requireNonNullElse(this.kafkaDefaultConsumerTopicConfig.getAdditionalProps(), new HashMap<>());
         Map<String, String> topicAdditionalProps = Objects.requireNonNullElse(topicConfig.getAdditionalProps(), new HashMap<>());
 
-        if( Objects.nonNull(this.kafkaConfigData.getSchemaRegistryUrlKey()) &&
+        if (Objects.nonNull(this.kafkaConfigData.getSchemaRegistryUrlKey()) &&
                 Objects.nonNull(this.kafkaConfigData.getSchemaRegistryUrl())) {
             props.put(kafkaConfigData.getSchemaRegistryUrlKey(), this.kafkaConfigData.getSchemaRegistryUrl());
             log.debug("Added schema registry configuration: {}={}",
@@ -92,7 +92,7 @@ public class KafkaConsumerConfig<K extends Serializable, V extends Serializable>
         factory.setConcurrency(kafkaConsumerConfigData.getConcurrencyLevel());
         factory.setAutoStartup(kafkaConsumerConfigData.getAutoStartup());
         factory.getContainerProperties().setPollTimeout(kafkaConsumerConfigData.getPollTimeoutMs());
-        if(topicConfig.getEnableAutoCommit() == false){
+        if (topicConfig.getEnableAutoCommit() == false) {
             factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         }
         log.debug("Kafka listener container factory created successfully");
@@ -125,10 +125,18 @@ public class KafkaConsumerConfig<K extends Serializable, V extends Serializable>
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         Binder binder = Binder.get(environment);
-        this.kafkaConfigData = binder.bind("kafka.common", KafkaConfigData.class).orElse( new KafkaConfigData());
-        this.kafkaConsumerConfigData = binder.bind("kafka.consumer", KafkaConsumerConfigData.class).orElse(new KafkaConsumerConfigData());;
-        this.kafkaTopicsConfigData = binder.bind("kafka.topics", KafkaTopicsConfigData.class).orElse(new KafkaTopicsConfigData());
-        this.kafkaDefaultConsumerTopicConfig = binder.bind("kafka.topic.default.consumer", KafkaConsumerTopicConfig.class).orElse(new KafkaConsumerTopicConfig());
+        this.kafkaConfigData = binder.bind("kafka.common", KafkaConfigData.class).
+                orElse(new KafkaConfigData());
+
+        this.kafkaConsumerConfigData = binder.bind("kafka.consumer", KafkaConsumerConfigData.class)
+                .orElse(new KafkaConsumerConfigData());
+
+        this.kafkaTopicsConfigData = binder.bind("kafka.topics", KafkaTopicsConfigData.class)
+                .orElse(new KafkaTopicsConfigData());
+
+        this.kafkaDefaultConsumerTopicConfig = binder.bind("kafka.topic.default.consumer", KafkaConsumerTopicConfig.class)
+                .orElse(new KafkaConsumerTopicConfig());
+
         this.registerFactoryBeans(beanFactory);
     }
 
